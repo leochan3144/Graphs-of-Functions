@@ -1,0 +1,650 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Graphs of Functions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Zilla+Slab:wght@500;600;700&display=swap">
+<style>
+/* Layout: chapter tabs across the top; graph-paper board on the left, lesson notebook on the right */
+:root{
+  --paper:#f3f6f9; --sheet:#ffffff; --ink:#1b2a3a; --muted:#56687a; --rule:#d6dfe8;
+  --grid:#e4ecf4; --grid2:#c6d4e2; --axis:#1b2a3a;
+  --c1:#1f6fb2; --c2:#c2337a; --c3:#c77c00; --c4:#23895f; --on-c1:#ffffff; --hl:#fff1b0;
+  --display:"Zilla Slab", Georgia, "Times New Roman", serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e151e; --sheet:#141e2a; --ink:#e5ecf4; --muted:#93a5b8; --rule:#26354a;
+    --grid:#1b2735; --grid2:#2c3d52; --axis:#cfdbe8;
+    --c1:#5ea9ec; --c2:#f06aa8; --c3:#f0b23e; --c4:#4cc792; --on-c1:#08121c; --hl:#40391b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e151e; --sheet:#141e2a; --ink:#e5ecf4; --muted:#93a5b8; --rule:#26354a;
+  --grid:#1b2735; --grid2:#2c3d52; --axis:#cfdbe8;
+  --c1:#5ea9ec; --c2:#f06aa8; --c3:#f0b23e; --c4:#4cc792; --on-c1:#08121c; --hl:#40391b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:clamp(16px,3vw,32px)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+header.top{padding-block:28px 14px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(32px,4.6vw,48px);line-height:1.05;margin:.25em 0 .3em;text-wrap:balance}
+.lede{margin:0;max-width:64ch;color:var(--muted)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:0;background:none;color:var(--muted);font:600 15px/1 var(--body);padding:14px 12px 12px;border-bottom:3px solid transparent;cursor:pointer}
+.tab .no{font-family:var(--mono);font-size:12px;font-weight:500;border:1px solid var(--grid2);border-radius:5px;padding:3px 6px}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--c1)}
+.tab[aria-selected="true"] .no{background:var(--c1);border-color:var(--c1);color:var(--on-c1)}
+.stage{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;padding-block:20px 48px;align-items:start}
+@media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}}
+.board{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:12px;min-width:0}
+.board-head{display:flex;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:13px;color:var(--muted);padding:2px 4px 10px}
+.board-head .fn{color:var(--ink);font-weight:500}
+canvas{display:block;width:100%;aspect-ratio:16/11;max-width:100%;border-radius:6px}
+@media (max-width:560px){canvas{aspect-ratio:4/3}}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.dot{width:30px;height:10px;border-radius:5px;border:0;background:var(--rule);cursor:pointer;padding:0}
+.dot.done{background:var(--grid2)}
+.dot.on{background:var(--c1)}
+.notes{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.notes h2{font-family:var(--display);font-weight:600;font-size:27px;line-height:1.15;margin:0;text-wrap:balance}
+.body{display:flex;flex-direction:column;gap:10px}
+.body p{margin:0;max-width:62ch}
+.m{font-family:var(--mono);font-size:.92em;white-space:nowrap}
+.key{background:var(--hl);border-radius:6px;padding:10px 14px}
+.key ul{margin:4px 0 0;padding-left:18px}
+.calc{font-family:var(--mono);font-size:14px;background:var(--paper);border-radius:8px;padding:12px 14px;line-height:1.9;overflow-x:auto}
+table.vals{border-collapse:collapse;font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
+table.vals td,table.vals th{border:1px solid var(--rule);padding:4px 9px;text-align:center}
+table.vals th{color:var(--muted);font-weight:500}
+.tablewrap{overflow-x:auto}
+.controls{display:flex;flex-direction:column;gap:14px}
+.controls:empty{display:none}
+.ctl label,.ctl .ctl-name{display:flex;justify-content:space-between;font-weight:700;font-size:15px;margin-bottom:4px}
+.ctl output{font-family:var(--mono);font-weight:500;color:var(--c1)}
+.ctl input[type=range]{width:100%;accent-color:var(--c1)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:8px;padding:8px 14px;font:600 15px var(--mono);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--c1);border-color:var(--c1);color:var(--on-c1)}
+.readout{background:var(--paper);border-radius:8px;padding:12px 14px;font-size:15px}
+.readout:empty{display:none}
+.readout .warn{color:var(--c2);font-weight:700}
+.readout table{border-collapse:collapse;width:100%;font-size:14px}
+.readout td{padding:5px 6px;border-top:1px solid var(--rule);vertical-align:top}
+.readout tr:first-child td{border-top:0}
+.readout td:first-child{color:var(--muted);white-space:nowrap;padding-right:12px}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.nav button{border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:8px;padding:10px 14px;font:700 15px var(--body);cursor:pointer}
+.nav button:hover{border-color:var(--grid2)}
+.nav button:disabled{opacity:.4;cursor:default}
+.nav .primary{background:var(--c1);border-color:var(--c1);color:var(--on-c1);margin-left:auto}
+.nav #play[aria-pressed="true"]{border-color:var(--c1);color:var(--c1)}
+.hint{margin:0;font-size:13px;color:var(--muted)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Chapter 22 · More about Graphs of Functions</p>
+    <h1>Graphs of Functions</h1>
+    <p class="lede">Six families of functions, one animation at a time. Press <b>Next</b> to build each graph step by step, then use the last step of each lesson to change the numbers yourself.</p>
+  </div>
+</header>
+<nav class="tabs" aria-label="Lessons"><div class="wrap" id="tabs" role="tablist"></div></nav>
+<main class="wrap stage">
+  <section class="board" aria-label="Graph">
+    <div class="board-head"><span class="fn" id="fnTag"></span><span id="stepCount"></span></div>
+    <canvas id="cv" role="img" aria-label="Animated graph"></canvas>
+    <div class="dots" id="dots"></div>
+  </section>
+  <section class="notes" aria-live="polite">
+    <p class="eyebrow" id="lessonName"></p>
+    <h2 id="stepTitle"></h2>
+    <div class="body" id="stepBody"></div>
+    <div class="controls" id="controls"></div>
+    <div class="readout" id="readout"></div>
+    <div class="nav">
+      <button id="prev" type="button">← Back</button>
+      <button id="replay" type="button">Replay</button>
+      <button id="play" type="button" aria-pressed="false">Autoplay</button>
+      <button id="next" type="button" class="primary">Next →</button>
+    </div>
+    <p class="hint">Keyboard: ← and → move between steps.</p>
+  </section>
+</main>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const cv=$('#cv'), ctx=cv.getContext('2d');
+let W=0,H=0,C={};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const PI=Math.PI, rad=d=>d*PI/180;
+const sinD=x=>Math.sin(rad(x)), cosD=x=>Math.cos(rad(x)), tanD=x=>Math.tan(rad(x));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>1-Math.pow(1-t,3);
+const seg=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+const E=(t,a,b)=>ease(seg(t,a,b));
+const fmt=v=>{const r=Math.round(v*100)/100; const s=String(Math.abs(r)); return (r<0?'−':'')+s;};
+const f1=v=>{const s=Math.abs(v).toFixed(1); return (v<-0.04?'−':'')+s;};
+
+function readTokens(){
+  const cs=getComputedStyle(document.documentElement);
+  ['ink','muted','grid','grid2','axis','c1','c2','c3','c4','sheet','hl','paper'].forEach(k=>C[k]=cs.getPropertyValue('--'+k).trim());
+  C.body=cs.getPropertyValue('--body').trim(); C.mono=cs.getPropertyValue('--mono').trim();
+}
+
+function rr(x,y,w,h,r){ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x,y,w,h,r); else ctx.rect(x,y,w,h);}
+function pill(text,X,Y,o={}){
+  const size=o.size||13, a=o.alpha??1; if(a<=0) return;
+  ctx.save();
+  ctx.font=`${o.bold?'700 ':''}${size}px ${o.mono?C.mono:C.body}`;
+  const w=ctx.measureText(text).width;
+  let x=X; if(o.align==='right') x=X-w; else if(o.align==='center') x=X-w/2;
+  x=clamp(x,6,W-w-6);
+  const h=size+9;
+  if(o.bg!==false){
+    ctx.globalAlpha=a*0.9; ctx.fillStyle=C.sheet; rr(x-5,Y-h/2,w+10,h,6); ctx.fill();
+    if(o.border){ctx.globalAlpha=a; ctx.strokeStyle=o.color||C.grid2; ctx.lineWidth=1; ctx.stroke();}
+  }
+  ctx.globalAlpha=a; ctx.fillStyle=o.color||C.ink; ctx.textBaseline='middle'; ctx.fillText(text,x,Y+1);
+  ctx.restore();
+}
+
+function makeG(view){
+  const narrow=W<520;
+  const pad={l:narrow?24:32,r:20,t:24,b:28};
+  const [x0,x1]=view.x,[y0,y1]=view.y;
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+  const sx=x=>pad.l+(x-x0)/(x1-x0)*pw, sy=y=>pad.t+(y1-y)/(y1-y0)*ph;
+  const g={view,sx,sy,pad,pw,ph,narrow};
+  const clip=fn=>{ctx.save(); ctx.beginPath(); ctx.rect(pad.l,pad.t-2,pw+4,ph+4); ctx.clip(); fn(); ctx.restore();};
+  g.clip=clip;
+  function line(X1,Y1,X2,Y2){ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();}
+  g.grid=()=>{
+    const v=view, xs=v.xs||1, ys=v.ys||1, gx0=v.gx0??x0;
+    ctx.lineWidth=1; ctx.strokeStyle=C.grid; ctx.beginPath();
+    for(let i=Math.ceil(gx0/xs); i*xs<=x1+1e-9; i++){const X=Math.round(sx(i*xs))+.5; ctx.moveTo(X,pad.t); ctx.lineTo(X,pad.t+ph);}
+    const gl=Math.max(pad.l,sx(gx0));
+    for(let i=Math.ceil(y0/ys); i*ys<=y1+1e-9; i++){const Y=Math.round(sy(i*ys))+.5; ctx.moveTo(gl,Y); ctx.lineTo(pad.l+pw,Y);}
+    ctx.stroke();
+    const ax=sy(0), ay=sx(0);
+    ctx.strokeStyle=C.axis; ctx.fillStyle=C.axis; ctx.lineWidth=1.5;
+    if(y0<0&&y1>0){
+      const xe=pad.l+pw+12; line(v.gx0!=null?sx(v.gx0)-6:pad.l-6,ax,xe,ax);
+      ctx.beginPath(); ctx.moveTo(xe+2,ax); ctx.lineTo(xe-7,ax-4.5); ctx.lineTo(xe-7,ax+4.5); ctx.fill();
+      pill('x',xe-2,ax-14,{bg:false,color:C.muted,size:14});
+    }
+    if(x0<0&&x1>0){
+      const ye=pad.t-14; line(ay,pad.t+ph+6,ay,ye);
+      ctx.beginPath(); ctx.moveTo(ay,ye-2); ctx.lineTo(ay-4.5,ye+7); ctx.lineTo(ay+4.5,ye+7); ctx.fill();
+      pill('y',ay+10,ye+4,{bg:false,color:C.muted,size:14});
+      if(y0<0&&y1>0) pill('O',ay-14,ax+12,{bg:false,color:C.muted,size:13});
+    }
+    ctx.font=`${narrow?11:12}px ${C.mono}`; ctx.fillStyle=C.muted; ctx.textBaseline='middle';
+    const lx=(narrow&&v.lx2)||v.lx||xs, ly=v.ly||ys, fx=v.fx||fmt;
+    const ty=(y0<0&&y1>0)?ax:pad.t+ph;
+    ctx.textAlign='center';
+    for(let i=Math.ceil(Math.max(x0,gx0)/lx); i*lx<=x1+1e-9; i++){
+      const x=i*lx; if(Math.abs(x)<1e-9) continue; const X=sx(x);
+      ctx.strokeStyle=C.axis; ctx.lineWidth=1; line(X,ty-3,X,ty+3);
+      ctx.fillText(fx(x),X,ty+13);
+    }
+    ctx.textAlign='right';
+    const tx=(x0<0&&x1>0)?ay:pad.l;
+    for(let i=Math.ceil(y0/ly); i*ly<=y1+1e-9; i++){
+      const y=i*ly; if(Math.abs(y)<1e-9) continue; const Y=sy(y);
+      ctx.strokeStyle=C.axis; line(tx-3,Y,tx+3,Y);
+      ctx.fillText(fmt(y),tx-6,Y+1);
+    }
+    ctx.textAlign='left';
+  };
+  function stroke(o){ctx.strokeStyle=o.color||C.c1; ctx.lineWidth=o.w||3; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.setLineDash(o.dash||[]); ctx.globalAlpha=o.alpha??1;}
+  g.plot=(f,o={})=>{
+    const a=o.from??x0, b0=o.to??x1, t=o.t??1; if(t<=0) return;
+    const b=a+(b0-a)*t, N=o.n||600, span=y1-y0, lim=Math.max(Math.abs(y0),Math.abs(y1))+span*3;
+    clip(()=>{
+      stroke(o); ctx.beginPath(); let pen=false, py=null;
+      for(let i=0;i<=N;i++){
+        const x=a+(b-a)*i/N, y=f(x);
+        if(!isFinite(y)||Math.abs(y)>lim){pen=false; py=null; continue;}
+        if(pen&&py!==null&&Math.abs(y-py)>span*1.5) pen=false;
+        const X=sx(x), Y=sy(y); if(!pen){ctx.moveTo(X,Y); pen=true;} else ctx.lineTo(X,Y); py=y;
+      }
+      ctx.stroke();
+    });
+  };
+  g.param=(fx,fy,u0,u1,o={})=>{
+    const t=o.t??1; if(t<=0) return; const ub=u0+(u1-u0)*t, N=o.n||500;
+    clip(()=>{stroke(o); ctx.beginPath();
+      for(let i=0;i<=N;i++){const u=u0+(ub-u0)*i/N; const X=sx(fx(u)), Y=sy(fy(u)); i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);}
+      ctx.stroke();});
+  };
+  g.seg=(xa,ya,xb,yb,o={})=>{const t=o.t??1; if(t<=0) return; clip(()=>{stroke(Object.assign({w:2},o)); line(sx(xa),sy(ya),sx(lerp(xa,xb,t)),sy(lerp(ya,yb,t)));});};
+  g.vl=(x,o={})=>g.seg(x,o.from??y0,x,o.to??y1,Object.assign({dash:[6,5],w:1.6},o));
+  g.hl=(y,o={})=>g.seg(o.from??x0,y,o.to??x1,y,Object.assign({dash:[6,5],w:1.6},o));
+  g.dot=(x,y,o={})=>{
+    const a=o.alpha??1; if(a<=0) return; const X=sx(x),Y=sy(y);
+    if(X<pad.l-8||X>pad.l+pw+8||Y<pad.t-8||Y>pad.t+ph+8) return;
+    ctx.save(); ctx.globalAlpha=a; ctx.beginPath(); ctx.arc(X,Y,o.r||5.5,0,2*PI);
+    ctx.fillStyle=o.color||C.c3; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle=C.sheet; ctx.stroke(); ctx.restore();
+  };
+  g.lab=(text,x,y,o={})=>pill(text,sx(x)+(o.dx??8),sy(y)+(o.dy??-14),o);
+  g.corner=(text,o={})=>pill(text,pad.l+12,pad.t+12,Object.assign({border:true,mono:true,size:narrow?12:14},o));
+  g.bracket=(xa,xb,y,text,o={})=>{
+    const a=o.alpha??1; if(a<=0) return; const Y=sy(y), A=sx(xa), B=sx(xb);
+    ctx.save(); ctx.globalAlpha=a; ctx.strokeStyle=o.color||C.c3; ctx.lineWidth=2; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(A,Y+7); ctx.lineTo(A,Y); ctx.lineTo(B,Y); ctx.lineTo(B,Y+7); ctx.stroke(); ctx.restore();
+    pill(text,(A+B)/2,Y-12,{align:'center',color:o.color||C.c3,alpha:a,bold:true});
+  };
+  g.band=(xa,xb,o={})=>{ctx.save(); ctx.globalAlpha=o.alpha??.08; ctx.fillStyle=o.color||C.c2; ctx.fillRect(sx(xa),pad.t,sx(xb)-sx(xa),ph); ctx.restore();};
+  return g;
+}
+
+/* ---------- Views ---------- */
+const deg=v=>fmt(v)+'°';
+const VC={x:[-250,390],y:[-1.8,1.8],xs:30,lx:90,ys:.5,ly:1,gx0:0,fx:deg};
+const VP={x:[-390,390],y:[-1.8,1.8],xs:30,lx:90,lx2:180,ys:.5,ly:1,fx:deg};
+const V1={x:[-30,390],y:[-1.8,1.8],xs:30,lx:90,ys:.5,ly:1,fx:deg};
+const VT={x:[-30,390],y:[-4,4],xs:30,lx:90,ys:1,ly:1,fx:deg};
+const VTP={x:[-390,390],y:[-4,4],xs:30,lx:90,lx2:180,ys:1,ly:1,fx:deg};
+
+/* ---------- Text helpers ---------- */
+const linTxt=(a,b)=>{let s=a===1?'x':a===-1?'−x':fmt(a)+'x'; if(b>0) s+=' + '+fmt(b); else if(b<0) s+=' − '+fmt(-b); return s;};
+const quadTxt=(a,h,k)=>{
+  let s=a===1?'':a===-1?'−':fmt(a);
+  s+= h===0?'x²':`(x ${h>0?'−':'+'} ${fmt(Math.abs(h))})²`;
+  if(k>0) s+=' + '+fmt(k); else if(k<0) s+=' − '+fmt(-k);
+  return 'y = '+s;
+};
+const sup='<sup>x</sup>';
+
+/* ---------- Lessons ---------- */
+const L=[
+{ id:'constant', no:'1a', name:'Constant', full:'Constant functions', fn:'y = c',
+  view:{x:[-5,5],y:[-4,5]}, P:{c:3},
+  controls:[{k:'c',label:'c',min:-4,max:4,step:.5}],
+  steps:[
+  {title:'A function that never changes', dur:1500,
+   body:`<p>A <b>constant function</b> has the form <span class="m">y = c</span> or <span class="m">f(x) = c</span>, where c is a constant.</p><p>Watch the graph of <span class="m">y = 3</span> being drawn.</p>`,
+   draw(g,t){ g.plot(x=>3,{t:E(t,0,1)}); g.lab('y = 3',3.3,3,{color:C.c1,alpha:seg(t,.6,1),bold:true}); }},
+  {title:'A horizontal line with slope 0', dur:3600,
+   body:`<p>Slide along the x-axis. Whatever x is, y is still 3.</p><p class="key">The graph of <span class="m">y = c</span> is a <b>horizontal line</b> with <b>y-intercept c</b>. Its slope is 0.</p>`,
+   draw(g,t){
+     g.plot(x=>3); const x=lerp(-4.5,4.5,seg(t,0,1));
+     g.vl(x,{from:0,to:3,color:C.c2}); g.dot(x,0,{color:C.c2,r:4}); g.dot(x,3,{color:C.c2});
+     g.dot(0,3,{color:C.c3}); g.lab('y-intercept = 3',0,3,{dx:-8,dy:-16,align:'right',color:C.c3,bold:true});
+     g.lab('slope = 0',2.6,3,{dy:-16,color:C.c1,bold:true});
+     g.corner(`x = ${f1(x)}   y = 3`);
+   }},
+  {title:'When c is negative', dur:1600,
+   body:`<p>Example: <span class="m">f(x) = −2</span>. Every point on the graph has y-coordinate −2.</p><p class="key">For c &gt; 0 the graph is <b>above</b> the x-axis. For c &lt; 0 it is <b>below</b> the x-axis.</p>`,
+   draw(g,t){ g.plot(x=>3,{alpha:.25}); g.plot(x=>-2,{color:C.c2,t:E(t,0,1)});
+     g.lab('f(x) = −2',2.4,-2,{dy:18,color:C.c2,bold:true,alpha:seg(t,.6,1)}); g.dot(0,-2,{alpha:seg(t,.6,1)}); }},
+  {title:'When c = 0', dur:1500,
+   body:`<p>Now take <span class="m">y = 0</span>.</p><p class="key">When c = 0, the graph of <span class="m">y = c</span> lies <b>on the x-axis</b>.</p>`,
+   draw(g,t){ g.plot(x=>3,{alpha:.2}); g.plot(x=>-2,{color:C.c2,alpha:.2}); g.plot(x=>0,{color:C.c4,w:6,alpha:.85,t:E(t,0,1)});
+     g.lab('y = 0 lies on the x-axis',1,0,{dy:-18,color:C.c4,bold:true,alpha:seg(t,.6,1)}); }},
+  {title:'Try it yourself', dur:900, explore:true,
+   body:`<p>Drag the slider to move the line up and down. The line always stays horizontal.</p>`,
+   draw(g,t,P){ g.plot(x=>P.c,{t:E(t,0,1)}); g.dot(0,P.c); g.corner('y = '+fmt(P.c)); },
+   readout:P=>`<b>y = ${fmt(P.c)}</b> · slope 0 · y-intercept ${fmt(P.c)} · ${P.c>0?'above the x-axis':P.c<0?'below the x-axis':'lies on the x-axis'}`}
+  ]},
+
+{ id:'linear', no:'1b', name:'Linear', full:'Linear functions', fn:'y = ax + b',
+  view:{x:[-5,5],y:[-5,7]}, P:{a:1,b:3},
+  controls:[{k:'a',label:'a (slope)',min:-4,max:4,step:.5},{k:'b',label:'b (y-intercept)',min:-4,max:4,step:.5}],
+  steps:[
+  {title:'Start at the y-intercept', dur:2200,
+   body:`<p>A <b>linear function</b> has the form <span class="m">y = ax + b</span>, where a and b are constants and a ≠ 0.</p><p>For <span class="m">y = x + 3</span>, mark the y-intercept 3 first, then draw the straight line through it.</p>`,
+   draw(g,t){ g.dot(0,3,{alpha:seg(t,0,.2)}); g.lab('y-intercept b = 3',0,3,{dx:-10,dy:-4,align:'right',color:C.c3,bold:true,alpha:seg(t,.1,.3)});
+     g.plot(x=>x+3,{t:E(t,.3,1)}); g.lab('y = x + 3',2.4,5.4,{dx:10,dy:8,color:C.c1,bold:true,alpha:seg(t,.85,1)}); }},
+  {title:'The slope a', dur:2600,
+   body:`<p>Move 1 unit to the right and the line rises by a units. For <span class="m">y = x + 3</span>, a = 1.</p><p class="key">The graph of <span class="m">y = ax + b</span> is a <b>straight line</b> with <b>slope a</b> and <b>y-intercept b</b>.</p>`,
+   draw(g,t){ g.plot(x=>x+3); g.dot(0,3);
+     g.seg(1,4,2,4,{color:C.c3,w:3,t:E(t,0,.45)}); g.seg(2,4,2,5,{color:C.c2,w:3,t:E(t,.5,.95)});
+     g.lab('1',1.5,4,{dx:0,dy:16,align:'center',color:C.c3,bold:true,alpha:seg(t,.3,.45)});
+     g.lab('a = 1',2,4.5,{dx:10,dy:0,color:C.c2,bold:true,alpha:seg(t,.85,1)}); }},
+  {title:'A negative slope', dur:2400,
+   body:`<p>For <span class="m">f(x) = −3x + 2</span>, moving 1 unit right makes the line drop by 3 units.</p><p class="key">For a &gt; 0 the graph slopes <b>upwards</b> from left to right. For a &lt; 0 it slopes <b>downwards</b> from left to right.</p>`,
+   draw(g,t){ g.plot(x=>x+3,{alpha:.25}); g.lab('y = x + 3',2.4,5.4,{dx:10,dy:8,color:C.c1,alpha:.5});
+     g.plot(x=>-3*x+2,{color:C.c2,t:E(t,0,.55)}); g.dot(0,2,{alpha:seg(t,.4,.55)});
+     g.seg(0,2,1,2,{color:C.c3,w:3,t:E(t,.6,.78)}); g.seg(1,2,1,-1,{color:C.c2,w:3,t:E(t,.8,1)});
+     g.lab('1',.5,2,{dx:0,dy:-14,align:'center',color:C.c3,bold:true,alpha:seg(t,.7,.8)});
+     g.lab('a = −3',1,.5,{dx:10,dy:0,color:C.c2,bold:true,alpha:seg(t,.9,1)});
+     g.lab('f(x) = −3x + 2',-1.3,5.9,{dx:12,dy:0,color:C.c2,bold:true,alpha:seg(t,.5,.7)}); }},
+  {title:'When b = 0', dur:2400,
+   body:`<p>Watch b shrink from 3 to 0 in <span class="m">y = 2x + b</span>. The line slides down without changing its slope.</p><p class="key">When b = 0, we have <span class="m">y = ax</span>. Its graph is a straight line <b>passing through the origin</b>.</p>`,
+   draw(g,t){ const b=3*(1-E(t,.1,.85)); g.plot(x=>2*x+3,{alpha:.25,dash:[6,6],w:2});
+     g.plot(x=>2*x+b); g.dot(0,b); g.corner(b>0.02?`y = 2x + ${b.toFixed(1)}`:'y = 2x');
+     g.lab('passes through O',0,0,{dx:12,dy:16,color:C.c3,bold:true,alpha:seg(t,.85,1)}); }},
+  {title:'Try it yourself', dur:900, explore:true,
+   body:`<p>Change the slope a and the y-intercept b. The coloured triangle shows the slope: 1 step right, a steps up.</p>`,
+   draw(g,t,P){ const {a,b}=P;
+     if(a===0){ g.plot(x=>b,{color:C.c2}); g.corner('y = '+fmt(b)); return; }
+     g.plot(x=>a*x+b,{t:E(t,0,1)}); g.dot(0,b);
+     g.seg(0,b,1,b,{color:C.c3,w:3}); g.seg(1,b,1,b+a,{color:C.c2,w:3});
+     g.corner('y = '+linTxt(a,b)); },
+   readout:P=>P.a===0?`<span class="warn">a = 0 gives y = ${fmt(P.b)}, which is a constant function, not a linear one.</span>`:
+     `<b>y = ${linTxt(P.a,P.b)}</b> · slope ${fmt(P.a)} · y-intercept ${fmt(P.b)} · slopes ${P.a>0?'upwards':'downwards'} from left to right${P.b===0?' · passes through the origin':''}`}
+  ]},
+
+{ id:'quadratic', no:'2', name:'Quadratic', full:'Quadratic functions', fn:'y = a(x − h)² + k',
+  view:{x:[-4,7],y:[-7,10],ly:2}, P:{a:1,h:2,k:-5},
+  controls:[{k:'a',label:'a',min:-3,max:3,step:.25},{k:'h',label:'h',min:-3,max:5,step:.5},{k:'k',label:'k',min:-6,max:8,step:.5}],
+  steps:[
+  {title:'The basic parabola', dur:3200,
+   body:`<p>A <b>quadratic function</b> has the form <span class="m">y = ax² + bx + c</span>, where a ≠ 0.</p><p>Plot <span class="m">y = x²</span> point by point, then join the points with a smooth curve.</p><div class="tablewrap"><table class="vals"><tr><th>x</th><td>−3</td><td>−2</td><td>−1</td><td>0</td><td>1</td><td>2</td><td>3</td></tr><tr><th>y</th><td>9</td><td>4</td><td>1</td><td>0</td><td>1</td><td>4</td><td>9</td></tr></table></div><p class="key">The graph of a quadratic function is a <b>parabola</b>. Its domain may be all real numbers.</p>`,
+   draw(g,t){ for(let i=0;i<7;i++){const x=i-3; g.dot(x,x*x,{alpha:seg(t,i*.08,i*.08+.08)});}
+     g.plot(x=>x*x,{from:-3.2,to:3.2,t:E(t,.6,1)}); g.lab('y = x²',2.7,7.3,{dx:12,color:C.c1,bold:true,alpha:seg(t,.9,1)}); }},
+  {title:'Vertex form', dur:2800,
+   body:`<p>By <b>completing the square</b>, any quadratic can be written as <span class="m">y = a(x − h)² + k</span>.</p><p>Here <span class="m">y = x²</span> slides 2 units right and 5 units down to become <span class="m">y = (x − 2)² − 5</span>.</p><p class="key">The <b>vertex</b> is (h, k). The <b>axis of symmetry</b> is the line x = h.</p>`,
+   draw(g,t){ const s=E(t,.1,.9), h=2*s, k=-5*s;
+     g.plot(x=>x*x,{alpha:.22,dash:[6,6],w:2});
+     g.vl(h,{color:C.c2}); g.plot(x=>(x-h)**2+k); g.dot(h,k);
+     g.lab(`(${f1(h)}, ${f1(k)})`,h,k,{dx:12,dy:14,color:C.c3,bold:true});
+     g.corner(`y = (x − ${h.toFixed(1)})² − ${Math.abs(k).toFixed(1)}`); }},
+  {title:'a > 0: opens upwards', dur:3400,
+   body:`<p>Points at the same height pair up on either side of the dashed line, so the parabola is <b>symmetric about x = h</b>. It cuts the x-axis at α and β.</p><p class="key">For a &gt; 0 the parabola opens upwards and the function attains its <b>minimum value k at x = h</b>. Here the minimum value is −5 at x = 2.</p>`,
+   draw(g,t){ g.plot(x=>(x-2)**2-5); g.vl(2,{color:C.c2});
+     g.lab('axis of symmetry: x = 2',2,9.2,{dx:8,dy:0,color:C.c2,bold:true});
+     const d=3*E(t,.1,.7), y=d*d-5;
+     g.seg(2-d,y,2+d,y,{color:C.c4,dash:[4,4],w:1.6}); g.dot(2-d,y,{color:C.c4}); g.dot(2+d,y,{color:C.c4});
+     g.dot(2,-5); g.lab('vertex (2, −5)',2,-5,{dx:12,dy:6,color:C.c3,bold:true});
+     g.lab('min. value = −5',2,-5,{dx:0,dy:26,align:'center',color:C.c3,bold:true,alpha:seg(t,.5,.7)});
+     const r=Math.sqrt(5), a2=seg(t,.75,.95);
+     g.dot(2-r,0,{color:C.c2,alpha:a2}); g.dot(2+r,0,{color:C.c2,alpha:a2});
+     g.lab('α',2-r,0,{dx:-16,dy:-14,color:C.c2,bold:true,alpha:a2,size:15}); g.lab('β',2+r,0,{dx:8,dy:-14,color:C.c2,bold:true,alpha:a2,size:15});
+     g.lab('opens upwards',5.5,5.2,{dx:10,color:C.c1,bold:true,alpha:seg(t,.85,1)}); }},
+  {title:'a < 0: opens downwards', dur:3000,
+   body:`<p>Make a negative and the parabola turns upside down. <span class="m">f(x) = 9 − (x − 2)²</span> has a = −1, vertex (2, 9), and cuts the x-axis at −1 and 5.</p><p class="key">For a &lt; 0 the parabola opens downwards and the function attains its <b>maximum value k at x = h</b>.</p>`,
+   draw(g,t){ const s=E(t,0,.6), a=lerp(1,-1,s), k=lerp(-5,9,s);
+     g.vl(2,{color:C.c2}); g.plot(x=>a*(x-2)**2+k,{color:s>=1?C.c2:C.c1}); g.dot(2,k);
+     g.corner(s<1?`y = ${a.toFixed(2)}(x − 2)² + ${f1(k)}`:'f(x) = 9 − (x − 2)²');
+     const al=seg(t,.65,.85);
+     g.lab('vertex (2, 9)',2,9,{dx:12,dy:4,color:C.c3,bold:true,alpha:al});
+     g.lab('max. value = 9',2,9,{dx:-12,dy:4,align:'right',color:C.c3,bold:true,alpha:al});
+     const a3=seg(t,.85,1); g.dot(-1,0,{color:C.c4,alpha:a3}); g.dot(5,0,{color:C.c4,alpha:a3});
+     g.lab('opens downwards',5.3,-1,{dx:10,dy:0,color:C.c2,bold:true,alpha:a3}); }},
+  {title:'Finding the vertex by formula', dur:2600,
+   body:`<p>For <span class="m">y = 2x² − 5x + 3</span>: a = 2, b = −5, c = 3. Use the completing-the-square results:</p>
+   <div class="calc">h = −b ÷ 2a = 5 ÷ 4 = 5/4<br>k = (4ac − b²) ÷ 4a = (24 − 25) ÷ 8 = −1/8<br>y = 2(x − 5/4)² − 1/8</div>
+   <p class="key">a = 2 &gt; 0, so the function has a <b>minimum value of −1/8 at x = 5/4</b>.</p>`,
+   draw(g,t){ g.plot(x=>2*x*x-5*x+3,{t:E(t,0,.6),from:-1.2,to:3.7});
+     const a=seg(t,.6,.8); g.vl(1.25,{color:C.c2,alpha:a}); g.dot(1.25,-.125,{alpha:a});
+     g.lab('vertex (5/4, −1/8)',1.25,-.125,{dx:12,dy:20,color:C.c3,bold:true,alpha:a});
+     g.corner('y = 2x² − 5x + 3',{alpha:1}); }},
+  {title:'Try it yourself', dur:900, explore:true,
+   body:`<p>Change a, h and k in <span class="m">y = a(x − h)² + k</span>. Watch the vertex, the axis of symmetry and the maximum or minimum value.</p>`,
+   draw(g,t,P){ const {a,h,k}=P;
+     if(a===0){ g.plot(x=>k,{color:C.c2}); g.corner('y = '+fmt(k)); return; }
+     g.vl(h,{color:C.c2}); g.plot(x=>a*(x-h)**2+k,{t:E(t,0,1)}); g.dot(h,k);
+     g.lab(`${a>0?'min':'max'}. value = ${fmt(k)}`,h,k,{dx:12,dy:a>0?14:-14,color:C.c3,bold:true});
+     const q=-k/a; if(q>0){const r=Math.sqrt(q); g.dot(h-r,0,{color:C.c4}); g.dot(h+r,0,{color:C.c4});} else if(q===0) g.dot(h,0,{color:C.c4});
+     g.corner(quadTxt(a,h,k)); },
+   readout:P=>{const {a,h,k}=P; if(a===0) return `<span class="warn">a = 0 removes the x² term, so this is not a quadratic function.</span>`;
+     const q=-k/a; const xi=q>0?`x = ${fmt(h-Math.sqrt(q))} and x = ${fmt(h+Math.sqrt(q))}`:q===0?`x = ${fmt(h)} only`:'none';
+     return `<table><tr><td>Function</td><td>${quadTxt(a,h,k)}</td></tr><tr><td>Opens</td><td>${a>0?'upwards':'downwards'}</td></tr><tr><td>Vertex</td><td>(${fmt(h)}, ${fmt(k)})</td></tr><tr><td>Axis</td><td>x = ${fmt(h)}</td></tr><tr><td>${a>0?'Min.':'Max.'} value</td><td>${fmt(k)} at x = ${fmt(h)}</td></tr><tr><td>x-intercepts</td><td>${xi}</td></tr></table>`;}}
+  ]},
+
+{ id:'trig', no:'3', name:'Trigonometric', full:'Trigonometric functions', fn:'y = sin x, cos x, tan x',
+  view:V1, P:{fn:'sin'},
+  controls:[{k:'fn',label:'Function',type:'seg',options:['sin','cos','tan']}],
+  steps:[
+  {title:'Where sin x comes from', dur:5600, view:VC,
+   body:`<p>A point moves anticlockwise round a circle of radius 1. The <b>height</b> of the point is <span class="m">sin x</span>, where x is the angle it has turned through.</p><p>Plot the height against the angle and the sine curve appears.</p>`,
+   draw(g,t){
+     const th=360*seg(t,0,.96), a=rad(th);
+     const R0=g.sy(0)-g.sy(1), L0=g.sx(-250), R1=g.sx(0);
+     const R=Math.min(R0,(R1-L0)/2-12), cx=(L0+R1)/2-6, cy=g.sy(0);
+     ctx.save(); ctx.lineWidth=1; ctx.strokeStyle=C.grid2; ctx.beginPath(); ctx.moveTo(cx-R-8,cy); ctx.lineTo(cx+R+8,cy); ctx.moveTo(cx,cy-R-8); ctx.lineTo(cx,cy+R+8); ctx.stroke();
+     ctx.strokeStyle=C.axis; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,cy,R,0,2*PI); ctx.stroke();
+     const px=cx+R*Math.cos(a), py=cy-R*Math.sin(a);
+     if(th>0){ctx.strokeStyle=C.c3; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(cx,cy,20,0,-a,true); ctx.stroke();}
+     ctx.strokeStyle=C.ink; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+     ctx.strokeStyle=C.c2; ctx.lineWidth=3.5; ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
+     const s=Math.abs(Math.sin(a))<0.005?0:Math.sin(a), X2=g.sx(th), Y2=g.sy(s);
+     ctx.setLineDash([5,5]); ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(X2,Y2); ctx.stroke(); ctx.setLineDash([]);
+     ctx.fillStyle=C.c2; ctx.beginPath(); ctx.arc(px,py,5.5,0,2*PI); ctx.fill();
+     ctx.restore();
+     pill('1',cx+R/2,cy+12,{bg:false,color:C.muted,size:12,align:'center'});
+     g.plot(sinD,{from:0,to:th||0.0001}); g.dot(th,s,{color:C.c1});
+     g.corner(`x = ${Math.round(th)}°   sin x = ${s.toFixed(2)}`);
+     g.lab('y = sin x',300,-1,{dx:14,dy:8,color:C.c1,bold:true,alpha:seg(t,.96,1)});
+   }},
+  {title:'The period is 360°', dur:2800, view:VP,
+   body:`<p>After one full turn of 360° the point is back where it started, so the same wave repeats again and again in both directions.</p><p class="key"><span class="m">y = sin x</span> has <b>period 360°</b>. Its domain is all real numbers.</p>`,
+   draw(g,t){ g.plot(sinD,{from:0,to:360}); const e=E(t,0,.7);
+     g.plot(sinD,{from:0,to:-390,t:e,color:C.c4}); g.plot(sinD,{from:360,to:390,t:e,color:C.c4});
+     g.bracket(0,360,1.35,'period = 360°',{alpha:seg(t,.7,.9)});
+     g.bracket(-360,0,1.35,'360°',{alpha:seg(t,.8,1)*.6}); }},
+  {title:'Maximum, minimum and x-intercepts', dur:3200, view:V1,
+   body:`<p>For 0° ≤ x ≤ 360°:</p><div class="key"><ul><li><b>Maximum value 1</b> at x = 90°</li><li><b>Minimum value −1</b> at x = 270°</li><li><b>x-intercepts</b> 0°, 180°, 360°</li></ul></div>`,
+   draw(g,t){ g.plot(sinD); const a1=seg(t,0,.25), a2=seg(t,.3,.55), a3=seg(t,.6,.9);
+     g.vl(90,{from:0,to:1,color:C.c3,alpha:a1}); g.dot(90,1,{alpha:a1}); g.lab('max = 1',90,1,{dx:10,dy:-14,color:C.c3,bold:true,alpha:a1});
+     g.vl(270,{from:0,to:-1,color:C.c3,alpha:a2}); g.dot(270,-1,{alpha:a2}); g.lab('min = −1',270,-1,{dx:10,dy:16,color:C.c3,bold:true,alpha:a2});
+     [0,180,360].forEach(x=>g.dot(x,0,{color:C.c4,alpha:a3}));
+     g.lab('x-intercepts: 0°, 180°, 360°',180,0,{dx:14,dy:-26,color:C.c4,bold:true,alpha:a3}); }},
+  {title:'y = cos x', dur:3400, view:V1,
+   body:`<p>Slide the sine curve 90° to the left and you get the cosine curve. It has the same shape and the same period.</p><div class="key">For 0° ≤ x ≤ 360°:<ul><li><b>Period</b> 360°, domain all real numbers</li><li><b>Maximum value 1</b> at x = 0°, 360°</li><li><b>Minimum value −1</b> at x = 180°</li><li><b>x-intercepts</b> 90°, 270°</li></ul></div>`,
+   draw(g,t){ const s=90*E(t,0,.55);
+     g.plot(sinD,{alpha:.3,dash:[6,6],w:2}); g.plot(x=>sinD(x+s),{color:C.c2});
+     g.corner(s<89.5?`y = sin(x + ${Math.round(s)}°)`:'y = cos x');
+     const a1=seg(t,.6,.8), a2=seg(t,.8,1);
+     g.dot(0,1,{alpha:a1}); g.dot(360,1,{alpha:a1}); g.dot(180,-1,{alpha:a1});
+     g.lab('max = 1',360,1,{dx:-10,dy:-14,align:'right',color:C.c3,bold:true,alpha:a1});
+     g.lab('min = −1',180,-1,{dx:10,dy:16,color:C.c3,bold:true,alpha:a1});
+     g.dot(90,0,{color:C.c4,alpha:a2}); g.dot(270,0,{color:C.c4,alpha:a2}); }},
+  {title:'y = tan x', dur:3400, view:VT,
+   body:`<p>Since tan x = sin x ÷ cos x, tan x is <b>undefined</b> wherever cos x = 0, that is at x = ±90°, ±270°, … The graph never touches the dashed lines there.</p><div class="key"><ul><li><b>Period</b> 180°</li><li><b>Domain</b> all real numbers except ±90°, ±270°, …</li><li><b>No maximum or minimum value</b></li><li><b>x-intercepts</b> 0°, 180°, 360° (for 0° ≤ x ≤ 360°)</li></ul></div>`,
+   draw(g,t){ const a0=seg(t,0,.2);
+     g.vl(90,{color:C.c3,alpha:a0,w:2}); g.vl(270,{color:C.c3,alpha:a0,w:2});
+     g.lab('x = 90°',90,-3.5,{dx:6,dy:0,color:C.c3,bold:true,alpha:a0}); g.lab('x = 270°',270,-3.5,{dx:6,dy:0,color:C.c3,bold:true,alpha:a0});
+     g.plot(tanD,{t:E(t,.2,.8),n:1200});
+     const a3=seg(t,.8,.95); [0,180,360].forEach(x=>g.dot(x,0,{color:C.c4,alpha:a3}));
+     g.bracket(90,270,3.3,'period = 180°',{alpha:seg(t,.85,1)}); }},
+  {title:'Compare the three graphs', dur:900, explore:true, view:P=>P.fn==='tan'?VTP:VP,
+   body:`<p>Switch between the three functions and compare their properties.</p>`,
+   draw(g,t,P){ const f={sin:sinD,cos:cosD,tan:tanD}[P.fn], col={sin:C.c1,cos:C.c2,tan:C.c4}[P.fn];
+     if(P.fn==='tan') [-270,-90,90,270].forEach(x=>g.vl(x,{color:C.c3}));
+     g.plot(f,{color:col,t:E(t,0,1),n:1400}); g.corner('y = '+P.fn+' x'); },
+   readout:P=>{const d={
+     sin:['360°','all real numbers','1','−1','0°, 180°, 360°'],
+     cos:['360°','all real numbers','1','−1','90°, 270°'],
+     tan:['180°','all real numbers except ±90°, ±270°, …','no maximum value','no minimum value','0°, 180°, 360°']}[P.fn];
+     return `<table><tr><td>Period</td><td>${d[0]}</td></tr><tr><td>Domain</td><td>${d[1]}</td></tr><tr><td>Maximum value</td><td>${d[2]}</td></tr><tr><td>Minimum value</td><td>${d[3]}</td></tr><tr><td>x-intercepts</td><td>${d[4]} (for 0° ≤ x ≤ 360°)</td></tr></table>`;}}
+  ]},
+
+{ id:'exponential', no:'4a', name:'Exponential', full:'Exponential functions', fn:'y = aˣ',
+  view:{x:[-4,4],y:[-1,9]}, P:{a:2},
+  controls:[{k:'a',label:'a (base)',min:.2,max:4,step:.1}],
+  steps:[
+  {title:'Plotting y = 2ˣ', dur:3200,
+   body:`<p>An <b>exponential function</b> has the form <span class="m">y = a<sup>x</sup></span>, where a &gt; 0 and a ≠ 1. Its domain may be all real numbers.</p><div class="tablewrap"><table class="vals"><tr><th>x</th><td>−3</td><td>−2</td><td>−1</td><td>0</td><td>1</td><td>2</td><td>3</td></tr><tr><th>2${sup}</th><td>1/8</td><td>1/4</td><td>1/2</td><td>1</td><td>2</td><td>4</td><td>8</td></tr></table></div><p>Each step to the right doubles y.</p>`,
+   draw(g,t){ for(let i=0;i<7;i++){const x=i-3, y=2**x, al=seg(t,i*.08,i*.08+.08); g.dot(x,y,{alpha:al}); if(x>=0) g.lab(String(y),x,y,{dx:-10,dy:-12,align:'right',color:C.c3,bold:true,alpha:al});}
+     g.plot(x=>2**x,{from:-4,to:3.2,t:E(t,.6,1)}); g.lab('y = 2ˣ',2.6,6.06,{dx:12,dy:8,color:C.c1,bold:true,alpha:seg(t,.9,1)}); }},
+  {title:'Every graph passes through (0, 1)', dur:2600,
+   body:`<p>Since a⁰ = 1 for any base a, every graph <span class="m">y = a<sup>x</sup></span> cuts the y-axis at <b>(0, 1)</b>. Here are 1.5${sup}, 2${sup} and 3${sup}.</p><p class="key">For a &gt; 1, as x increases from 0, y increases <b>more rapidly</b>. A bigger base gives a steeper curve.</p>`,
+   draw(g,t){ const e=E(t,0,.8);
+     g.plot(x=>1.5**x,{color:C.c4,t:e,w:2.5}); g.plot(x=>3**x,{color:C.c2,t:e,w:2.5}); g.plot(x=>2**x,{t:e});
+     const al=seg(t,.8,1);
+     g.lab('3ˣ',1.9,8.06,{dx:10,dy:6,color:C.c2,bold:true,alpha:al}); g.lab('2ˣ',2.9,7.46,{dx:10,dy:6,color:C.c1,bold:true,alpha:al}); g.lab('1.5ˣ',3.7,4.48,{dx:-8,dy:-14,align:'right',color:C.c4,bold:true,alpha:al});
+     g.dot(0,1,{r:7}); g.lab('(0, 1)',0,1,{dx:-12,dy:-14,align:'right',color:C.c3,bold:true}); }},
+  {title:'Always above the x-axis', dur:4000,
+   body:`<p>Follow the point to the left. Each step left halves y, so y gets very small, but it never reaches 0.</p><div class="key"><ul><li><b>No x-intercepts</b>: the graph lies above the x-axis</li><li><b>No maximum point and no minimum point</b></li><li>For a &gt; 1, as x decreases from 0, the graph gets closer and closer to the <b>negative x-axis</b></li></ul></div>`,
+   draw(g,t){ g.hl(0,{from:-4,to:0,color:C.c3,dash:[],w:6,alpha:.35});
+     g.plot(x=>2**x); const x=lerp(2.5,-4,seg(t,0,1)), y=2**x;
+     g.vl(x,{from:0,to:y,color:C.c2}); g.dot(x,y,{color:C.c2});
+     g.corner(`x = ${f1(x)}   y = ${y.toFixed(3)}`);
+     g.lab('approaches the negative x-axis',-3.9,1.4,{dx:0,dy:0,color:C.c3,bold:true}); }},
+  {title:'When 0 < a < 1', dur:2800,
+   body:`<p>Reflect <span class="m">y = 2<sup>x</sup></span> in the y-axis and you get <span class="m">y = (1/2)<sup>x</sup></span>. Another example is <span class="m">f(x) = 0.4<sup>x</sup></span>.</p><div class="key">The graphs of <span class="m">y = a<sup>x</sup></span> and <span class="m">y = (1/a)<sup>x</sup></span> are <b>symmetric about the y-axis</b>. For 0 &lt; a &lt; 1:<ul><li>as x decreases from 0, y increases more rapidly</li><li>as x increases from 0, the graph gets closer to the positive x-axis</li></ul></div>`,
+   draw(g,t){ g.vl(0,{color:C.c3,dash:[],w:6,alpha:.3});
+     g.plot(x=>2**x,{alpha:.35}); const s=E(t,.1,.85);
+     g.param(u=>u*(1-2*s),u=>2**u,-4,3.2,{color:C.c2});
+     g.lab('y = 2ˣ',2.6,6.06,{dx:12,dy:8,color:C.c1,bold:true,alpha:.6});
+     g.lab('y = (1/2)ˣ',-2.6,6.06,{dx:-12,dy:8,align:'right',color:C.c2,bold:true,alpha:seg(t,.85,1)});
+     g.lab('mirror: y-axis',0,8.3,{dx:10,dy:0,color:C.c3,bold:true}); }},
+  {title:'Try it yourself', dur:900, explore:true,
+   body:`<p>Change the base a. The dashed curve is <span class="m">y = (1/a)<sup>x</sup></span>, the mirror image in the y-axis.</p>`,
+   draw(g,t,P){ const a=P.a; if(Math.abs(a-1)<1e-9){ g.plot(x=>1,{color:C.c2}); g.corner('y = 1ˣ = 1'); return; }
+     g.plot(x=>(1/a)**x,{color:C.c2,dash:[6,6],w:2,alpha:.6}); g.plot(x=>a**x,{t:E(t,0,1)}); g.dot(0,1);
+     g.corner(`y = ${fmt(a)}ˣ`); },
+   readout:P=>{const a=P.a; if(Math.abs(a-1)<1e-9) return `<span class="warn">a = 1 gives y = 1 for every x, a constant function. That is why a ≠ 1.</span>`;
+     return `<b>y = ${fmt(a)}${sup}</b> · cuts the y-axis at (0, 1) · no x-intercepts · no max or min point · ${a>1?'as x increases, y increases more and more rapidly; as x decreases, the graph approaches the negative x-axis':'as x decreases, y increases more and more rapidly; as x increases, the graph approaches the positive x-axis'}`;}}
+  ]},
+
+{ id:'logarithmic', no:'4b', name:'Logarithmic', full:'Logarithmic functions', fn:'y = logₐ x',
+  view:{x:[-4,8],y:[-3,5]}, P:{a:2},
+  controls:[{k:'a',label:'a (base)',min:.2,max:4,step:.1}],
+  steps:[
+  {title:'Reflect y = 2ˣ in the line y = x', dur:3600,
+   body:`<p>A <b>logarithmic function</b> has the form <span class="m">y = log<sub>a</sub> x</span>, where a &gt; 0 and a ≠ 1. <span class="m">y = log₂ x</span> means <span class="m">2<sup>y</sup> = x</span>.</p><p>So every point (p, q) on <span class="m">y = 2<sup>x</sup></span> becomes (q, p) on <span class="m">y = log₂ x</span>.</p><p class="key">The graphs of <span class="m">y = a<sup>x</sup></span> and <span class="m">y = log<sub>a</sub> x</span> are <b>symmetric about the line y = x</b>.</p>`,
+   draw(g,t){ g.plot(x=>x,{color:C.muted,dash:[6,6],w:1.6}); g.plot(x=>2**x,{alpha:.9});
+     const s=E(t,.15,.85);
+     [[0,1],[1,2],[2,4]].forEach(([p,q])=>{ g.seg(p,q,lerp(p,q,s),lerp(q,p,s),{color:C.c3,dash:[3,4],w:1.5}); g.dot(p,q,{color:C.c1,r:4.5}); g.dot(lerp(p,q,s),lerp(q,p,s)); });
+     g.param(u=>lerp(u,2**u,s),u=>lerp(2**u,u,s),-4,2.95,{color:C.c2,alpha:seg(t,0,.15)});
+     const al=seg(t,.85,1);
+     g.lab('y = 2ˣ',2.2,4.6,{dx:-10,dy:0,align:'right',color:C.c1,bold:true});
+     g.lab('y = x',4.6,4.6,{dx:8,dy:10,color:C.muted,bold:true});
+     g.lab('y = log₂ x',6.5,Math.log2(6.5),{dx:0,dy:-16,align:'center',color:C.c2,bold:true,alpha:al});
+     g.lab('(1, 0)',1,0,{dx:4,dy:16,color:C.c3,bold:true,alpha:al}); g.lab('(2, 1)',2,1,{dx:6,dy:14,color:C.c3,alpha:al}); g.lab('(4, 2)',4,2,{dx:6,dy:14,color:C.c3,alpha:al}); }},
+  {title:'Key features', dur:4000,
+   body:`<p>Only positive x can go into a logarithm, so the graph stays in the region x &gt; 0.</p><div class="key"><ul><li><b>Domain</b>: all positive real numbers</li><li><b>Cuts the x-axis at (1, 0)</b></li><li><b>No y-intercept</b>: the graph lies to the right of the y-axis</li><li><b>No maximum point and no minimum point</b></li><li>For a &gt; 1, as x increases from 1, y increases less rapidly; as x decreases from 1, the graph gets closer to the <b>negative y-axis</b></li></ul></div>`,
+   draw(g,t){ g.band(-4,0,{alpha:.07,color:C.c2}); g.lab('x ≤ 0: no graph here',-3.8,4.3,{dx:0,dy:0,color:C.c2,bold:true});
+     g.vl(0,{from:-3,to:0,color:C.c3,dash:[],w:6,alpha:.35});
+     g.plot(x=>Math.log2(x),{from:.02,to:8,n:900,color:C.c2}); g.dot(1,0); g.lab('(1, 0)',1,0,{dx:6,dy:16,color:C.c3,bold:true});
+     const u=lerp(Math.log2(7),-2.9,seg(t,0,1)), x=2**u;
+     g.dot(x,u,{color:C.c1}); g.corner(`x = ${x.toFixed(2)}   y = ${u.toFixed(2)}`);
+     g.lab('approaches the negative y-axis',-.15,-2.3,{dx:-6,dy:0,align:'right',color:C.c3,bold:true}); }},
+  {title:'When 0 < a < 1', dur:2600,
+   body:`<p>Reflect <span class="m">y = log₂ x</span> in the x-axis to get <span class="m">y = log<sub>½</sub> x</span>.</p><div class="key">The graphs of <span class="m">y = log<sub>a</sub> x</span> and <span class="m">y = log<sub>1/a</sub> x</span> are <b>symmetric about the x-axis</b>. For 0 &lt; a &lt; 1:<ul><li>as x increases from 1, y decreases less rapidly</li><li>as x decreases from 1, the graph gets closer to the positive y-axis</li></ul></div>`,
+   draw(g,t){ g.hl(0,{color:C.c3,dash:[],w:6,alpha:.3});
+     g.plot(x=>Math.log2(x),{from:.02,to:8,n:900,color:C.c2,alpha:.35}); const s=E(t,.1,.85);
+     g.plot(x=>Math.log2(x)*(1-2*s),{from:.02,to:8,n:900,color:C.c4}); g.dot(1,0);
+     g.lab('y = log₂ x',6.5,2.7,{dx:0,dy:-16,align:'center',color:C.c2,bold:true,alpha:.7});
+     g.lab('y = log½ x',6.5,-2.7,{dx:0,dy:18,align:'center',color:C.c4,bold:true,alpha:seg(t,.85,1)});
+     g.lab('mirror: x-axis',-3.8,0,{dx:0,dy:-14,color:C.c3,bold:true}); }},
+  {title:'Try it yourself', dur:900, explore:true,
+   body:`<p>Change the base a. The faint curve is <span class="m">y = a<sup>x</sup></span>, the mirror image of the log graph in the line y = x.</p>`,
+   draw(g,t,P){ const a=P.a; g.plot(x=>x,{color:C.muted,dash:[6,6],w:1.4});
+     if(Math.abs(a-1)<1e-9){ g.corner('log₁ x is undefined'); return; }
+     g.plot(x=>a**x,{color:C.c1,alpha:.4,w:2}); g.plot(x=>Math.log(x)/Math.log(a),{from:.01,to:8,n:900,color:C.c2,t:E(t,0,1)}); g.dot(1,0);
+     g.corner(`y = log${[...fmt(a)].map(ch=>'₀₁₂₃₄₅₆₇₈₉'['0123456789'.indexOf(ch)]||ch).join('')} x`); },
+   readout:P=>{const a=P.a; if(Math.abs(a-1)<1e-9) return `<span class="warn">a = 1 is not allowed: 1<sup>y</sup> is always 1, so log₁ x has no meaning.</span>`;
+     return `<b>y = log<sub>${fmt(a)}</sub> x</b> · domain x &gt; 0 · cuts the x-axis at (1, 0) · no y-intercept · no max or min point · ${a>1?'as x increases, y increases less and less rapidly; as x decreases to 0, the graph approaches the negative y-axis':'as x increases, y decreases less and less rapidly; as x decreases to 0, the graph approaches the positive y-axis'}`;}}
+  ]}
+];
+
+/* ---------- State & UI ---------- */
+let li=0, si=0, T=1, t0=0, raf=0, auto=false, autoTimer=0;
+const les=()=>L[li], step=()=>les().steps[si];
+
+function resize(){
+  const r=cv.getBoundingClientRect(); if(!r.width) return;
+  const dpr=Math.min(window.devicePixelRatio||1,2.5);
+  cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0); W=r.width; H=r.height; render();
+}
+function render(){
+  if(!W) return; readTokens();
+  ctx.clearRect(0,0,W,H); ctx.fillStyle=C.sheet; ctx.fillRect(0,0,W,H);
+  const st=step(), v=st.view||les().view, g=makeG(typeof v==='function'?v(les().P):v);
+  g.grid(); ctx.save(); st.draw(g,T,les().P); ctx.restore();
+}
+function anim(){
+  cancelAnimationFrame(raf); clearTimeout(autoTimer);
+  if(reduce){T=1; render(); done(); return;}
+  t0=performance.now(); const dur=step().dur||1800;
+  const tick=now=>{T=clamp((now-t0)/dur,0,1); render(); if(T<1) raf=requestAnimationFrame(tick); else done();};
+  raf=requestAnimationFrame(tick);
+}
+function done(){
+  if(!auto) return;
+  autoTimer=setTimeout(()=>{
+    if(si<les().steps.length-1) go(si+1);
+    else if(li<L.length-1) setLesson(li+1);
+    else setAuto(false);
+  },3000);
+}
+function setAuto(on){auto=on; const b=$('#play'); b.setAttribute('aria-pressed',on); b.textContent=on?'Pause':'Autoplay'; if(on&&T>=1) done(); if(!on) clearTimeout(autoTimer);}
+
+function buildTabs(){
+  $('#tabs').innerHTML=L.map((l,i)=>`<button class="tab" role="tab" id="tab-${l.id}" aria-selected="${i===li}" data-i="${i}"><span class="no">${l.no}</span>${l.name}</button>`).join('');
+  $('#tabs').querySelectorAll('.tab').forEach(b=>b.onclick=()=>{setAuto(false); setLesson(+b.dataset.i);});
+}
+function buildControls(){
+  const l=les(), box=$('#controls');
+  box.innerHTML=l.controls.map(c=>{
+    const id=`ctl-${l.id}-${c.k}`;
+    if(c.type==='seg') return `<div class="ctl"><span class="ctl-name">${c.label}</span><div class="seg" role="group" aria-label="${c.label}">${c.options.map(o=>`<button type="button" id="${id}-${o}" data-v="${o}" aria-pressed="${l.P[c.k]===o}">y = ${o} x</button>`).join('')}</div></div>`;
+    return `<div class="ctl"><label for="${id}"><span>${c.label}</span><output id="${id}-out">${fmt(l.P[c.k])}</output></label><input type="range" id="${id}" min="${c.min}" max="${c.max}" step="${c.step}" value="${l.P[c.k]}"></div>`;
+  }).join('');
+  l.controls.forEach(c=>{
+    const id=`ctl-${l.id}-${c.k}`;
+    if(c.type==='seg'){
+      box.querySelectorAll(`[id^="${id}-"]`).forEach(b=>b.onclick=()=>{l.P[c.k]=b.dataset.v; box.querySelectorAll(`[id^="${id}-"]`).forEach(x=>x.setAttribute('aria-pressed',x===b)); updReadout(); anim();});
+    } else {
+      const inp=document.getElementById(id);
+      inp.oninput=()=>{l.P[c.k]=Math.round(parseFloat(inp.value)*100)/100; document.getElementById(id+'-out').textContent=fmt(l.P[c.k]); updReadout(); cancelAnimationFrame(raf); T=1; render();};
+    }
+  });
+}
+function updReadout(){const st=step(); $('#readout').innerHTML=st.explore&&st.readout?st.readout(les().P):'';}
+function updPanel(){
+  const l=les(), st=step(), n=l.steps.length;
+  $('#lessonName').textContent=`${l.no} · ${l.full}`;
+  $('#stepTitle').textContent=st.title;
+  $('#stepBody').innerHTML=st.body;
+  $('#fnTag').textContent=l.fn;
+  $('#stepCount').textContent=`Step ${si+1} of ${n}`;
+  $('#controls').hidden=!st.explore;
+  updReadout();
+  $('#prev').disabled=li===0&&si===0;
+  const last=si===n-1;
+  $('#next').disabled=last&&li===L.length-1;
+  $('#next').textContent=last?(li<L.length-1?`Next: ${L[li+1].name} →`:'Next →'):'Next →';
+  $('#dots').innerHTML=l.steps.map((s,i)=>`<button class="dot${i===si?' on':i<si?' done':''}" type="button" aria-label="Step ${i+1}: ${s.title}" data-i="${i}"></button>`).join('');
+  $('#dots').querySelectorAll('.dot').forEach(b=>b.onclick=()=>go(+b.dataset.i));
+  cv.setAttribute('aria-label',`${l.full}: ${st.title}`);
+}
+function go(i){si=i; updPanel(); anim();}
+function setLesson(i){
+  li=i; si=0;
+  $('#tabs').querySelectorAll('.tab').forEach((b,j)=>b.setAttribute('aria-selected',j===li));
+  document.getElementById('tab-'+les().id).scrollIntoView({block:'nearest',inline:'nearest'});
+  try{history.replaceState(null,'','#'+les().id);}catch(e){}
+  buildControls(); updPanel(); anim();
+}
+function next(){ if(si<les().steps.length-1) go(si+1); else if(li<L.length-1) setLesson(li+1); }
+function prev(){ if(si>0) go(si-1); else if(li>0){ setLesson(li-1); go(les().steps.length-1);} }
+
+$('#next').onclick=()=>{setAuto(false); next();};
+$('#prev').onclick=()=>{setAuto(false); prev();};
+$('#replay').onclick=()=>anim();
+$('#play').onclick=()=>setAuto(!auto);
+document.addEventListener('keydown',e=>{
+  if(e.target.matches('input')) return;
+  if(e.key==='ArrowRight'){setAuto(false); next();} else if(e.key==='ArrowLeft'){setAuto(false); prev();}
+});
+
+new ResizeObserver(resize).observe(cv);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render);
+new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(render);
+
+const h=(location.hash||'').slice(1); const hi=L.findIndex(l=>l.id===h);
+li=hi>=0?hi:0;
+buildTabs(); buildControls(); updPanel(); resize(); anim();
+})();
+</script>
+
+</body></html>
